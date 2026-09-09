@@ -18,6 +18,7 @@ lint:
 
 test: lint
 	$(PYTEST) backend/tests \
+		-m "not live" \
 		--cov=backend/app/extraction \
 		--cov=backend/app/generation \
 		--cov=backend/app/verification \
