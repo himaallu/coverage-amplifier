@@ -9,7 +9,7 @@ Source of truth: docs/PRD.md. Any deviation from the PRD must be proposed explic
 3. Do not edit prompts/ without stating that `make eval-live` must be re-run and results appended to evals/RESULTS.md.
 4. Do not modify DB migrations after they are committed; write a new migration.
 5. No new dependencies without a one-line justification in the task brief.
-6. Commit after every green test: conventional messages (feat/fix/test/docs/refactor(scope): summary).
+6. Commit after every green test: conventional messages (feat/fix/test/docs/refactor(scope): summary). Small commits only.
 
 ## Style
 
