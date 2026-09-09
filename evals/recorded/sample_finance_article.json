@@ -1,0 +1,20 @@
+{
+  "article_url": "https://ft.com/content/pathos-plc-fy2025-results",
+  "article_text": "Pathos Communications PLC published its audited financial results for the fiscal year ending December 31, 2025, showing revenue growth of 62 percent to 14.8 million pounds. Operating profits rose to 3.2 million pounds compared with 1.1 million pounds in the previous year. The pay-on-results media consultancy expanded its customer roster to 180 active corporate clients across the United Kingdom and Western Europe. Chairman Mark Henderson attributed the earnings surge to higher retention rates and the successful rollout of performance-based media campaigns. The company ended the period with cash reserves of 5.4 million pounds and zero long-term debt on its balance sheet. Management proposed a maiden final dividend of 2.5 pence per ordinary share payable on May 20, 2026. The board stated that trading in the first quarter of 2026 has continued strongly with forward bookings up 40 percent year-on-year. Pathos is actively evaluating strategic acquisitions to expand its technology-enabled coverage verification infrastructure. Analysts noted that the group's transition toward scalable software-assisted account servicing has expanded operating margins from 12 percent to nearly 22 percent in twenty-four months. Institutional investors welcomed the solid free cash flow generation and the disciplined approach toward capital allocation. Pathos plans to hold its annual general meeting on April 28 in London where leadership will detail commercial expansion plans for the North American market.",
+  "expected_extraction": {
+    "title": "Pathos Communications PLC FY2025 Revenue Surges 62% to £14.8M",
+    "outlet": "Financial Times",
+    "author": "Financial Markets Team",
+    "published_at": "2026-03-15",
+    "source_sentences": [
+      {"id": "S1", "text": "Pathos Communications PLC published its audited financial results for the fiscal year ending December 31, 2025, showing revenue growth of 62 percent to 14.8 million pounds."},
+      {"id": "S2", "text": "Operating profits rose to 3.2 million pounds compared with 1.1 million pounds in the previous year."},
+      {"id": "S3", "text": "The pay-on-results media consultancy expanded its customer roster to 180 active corporate clients across the United Kingdom and Western Europe."},
+      {"id": "S4", "text": "Chairman Mark Henderson attributed the earnings surge to higher retention rates and the successful rollout of performance-based media campaigns."},
+      {"id": "S5", "text": "The company ended the period with cash reserves of 5.4 million pounds and zero long-term debt on its balance sheet."},
+      {"id": "S6", "text": "Management proposed a maiden final dividend of 2.5 pence per ordinary share payable on May 20, 2026."},
+      {"id": "S7", "text": "The board stated that trading in the first quarter of 2026 has continued strongly with forward bookings up 40 percent year-on-year."},
+      {"id": "S8", "text": "Pathos is actively evaluating strategic acquisitions to expand its technology-enabled coverage verification infrastructure."}
+    ]
+  }
+}

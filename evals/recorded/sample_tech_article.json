@@ -1,0 +1,21 @@
+{
+  "article_url": "https://techcrunch.com/2026/09/08/pathos-communications-ai-pr",
+  "article_text": "Pathos Communications today announced the launch of its autonomous coverage activation platform for pay-on-results public relations. The London-based agency has developed a proprietary system that converts media placements into marketing collateral in under 90 seconds. CEO Scott Feltham stated that traditional PR measurement stops at publication, which leaves significant value unrealized for growth-stage companies. The company reported a 45% increase in client retention during the six-month pilot phase across 35 enterprise accounts. According to the announcement, the system extracts key factual claims from published articles and verifies every sentence against the source material before publishing client assets. Over 1,200 marketing assets were generated during the testing window with zero factual hallucinations detected. Chief Technology Officer Jane Doe noted that the agency expects to process over 10,000 articles annually across European and North American markets. The platform will be made available to existing retainers starting October 15, 2026. The initial release supports automated LinkedIn copy, Instagram captions, sales enablement blurbs, and digital press badges. By combining programmatic claim-level verification with agency-grade copywriting heuristics, the solution bridges the gap between press coverage and revenue enablement. Industry observers have pointed out that agencies typically struggle with high staff turnover and administrative burnout when generating activation assets manually for each media placement. With pay-on-results business models gaining broader market traction, automated verification systems ensure that marketing copy accurately mirrors original press citations without requiring extensive human proofreading cycles. Pathos plans to introduce deeper CRM integrations later this year.",
+  "expected_extraction": {
+    "title": "Pathos Communications Launches Autonomous Coverage Activation Platform",
+    "outlet": "TechCrunch",
+    "author": "Jane Doe",
+    "published_at": "2026-09-08",
+    "source_sentences": [
+      {"id": "S1", "text": "Pathos Communications today announced the launch of its autonomous coverage activation platform for pay-on-results public relations."},
+      {"id": "S2", "text": "The London-based agency has developed a proprietary system that converts media placements into marketing collateral in under 90 seconds."},
+      {"id": "S3", "text": "CEO Scott Feltham stated that traditional PR measurement stops at publication, which leaves significant value unrealized for growth-stage companies."},
+      {"id": "S4", "text": "The company reported a 45% increase in client retention during the six-month pilot phase across 35 enterprise accounts."},
+      {"id": "S5", "text": "According to the announcement, the system extracts key factual claims from published articles and verifies every sentence against the source material before publishing client assets."},
+      {"id": "S6", "text": "Over 1,200 marketing assets were generated during the testing window with zero factual hallucinations detected."},
+      {"id": "S7", "text": "Chief Technology Officer Jane Doe noted that the agency expects to process over 10,000 articles annually across European and North American markets."},
+      {"id": "S8", "text": "The platform will be made available to existing retainers starting October 15, 2026."},
+      {"id": "S9", "text": "The initial release supports automated LinkedIn copy, Instagram captions, sales enablement blurbs, and digital press badges."}
+    ]
+  }
+}

@@ -30,14 +30,20 @@ class Kit(Base):
         sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     source_url: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
-    outlet: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    title: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    outlet: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
+    title: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
     author: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
     published_at: Mapped[date | None] = mapped_column(sa.Date, nullable=True)
-    raw_text: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    raw_text: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
     source_sentences: Mapped[list[dict[str, Any]]] = mapped_column(
         JSON_TYPE, nullable=False, default=list
     )
+    original_char_count: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    processed_char_count: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    truncated: Mapped[bool] = mapped_column(
+        sa.Boolean, nullable=False, default=False, server_default=sa.text("false")
+    )
+    source_integrity_rate: Mapped[float | None] = mapped_column(sa.Float, nullable=True)
     status: Mapped[KitStatus] = mapped_column(
         sa.Enum(
             KitStatus,

@@ -3,6 +3,7 @@ from enum import StrEnum
 
 class KitStatus(StrEnum):
     EXTRACTING = "extracting"
+    PASTE_PENDING = "paste_pending"
     GENERATING = "generating"
     VERIFYING = "verifying"
     READY = "ready"

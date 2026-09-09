@@ -48,6 +48,9 @@ exclude = ["\\.venv"]
 pythonpath = ["."]
 testpaths = ["backend/tests"]
 addopts = "-ra -q"
+markers = [
+    "live: marks tests as requiring live model calls (excluded from default CI)",
+]
 
 [tool.coverage.run]
 branch = true
