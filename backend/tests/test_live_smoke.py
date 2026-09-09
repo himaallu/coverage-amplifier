@@ -127,3 +127,75 @@ async def test_live_gemini_generation_smoke() -> None:
     finally:
         session.close()
         Base.metadata.drop_all(engine)
+
+
+@pytest.mark.live
+@pytest.mark.anyio
+async def test_live_gemini_verification_smoke() -> None:
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    from backend.app.db.base import Base
+    from backend.app.db.enums import AssetType, ClaimVerdict, KitStatus
+    from backend.app.db.models import Asset, Claim, Kit
+    from backend.app.verification.service import verify_kit_claims
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        pytest.skip("GEMINI_API_KEY not set in environment")
+
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    session_factory = sessionmaker(bind=engine)
+    session = session_factory()
+
+    try:
+        kit = Kit(
+            source_url="https://example.com/live-article",
+            outlet="Pathos Wire",
+            title="PR Activation Growth",
+            source_sentences=[
+                {
+                    "id": "S1",
+                    "text": "Pathos announced a 62% increase in revenue in 2025.",
+                },
+                {
+                    "id": "S2",
+                    "text": "CEO Scott Feltham stated PR activation delivers 10x ROI.",
+                },
+            ],
+            status=KitStatus.GENERATING,
+        )
+        session.add(kit)
+        session.flush()
+
+        asset = Asset(
+            kit_id=kit.id,
+            type=AssetType.LINKEDIN_COMPANY,
+            text="Pathos announced a 62% increase in revenue.",
+            meta={},
+        )
+        session.add(asset)
+        session.flush()
+
+        claim = Claim(
+            asset_id=asset.id,
+            text_span="62% increase in revenue in 2025",
+            source_ids=["S1"],
+            verdict=ClaimVerdict.PENDING,
+        )
+        session.add(claim)
+        session.commit()
+
+        client = GeminiLLMClient(api_key=api_key)
+        run = await verify_kit_claims(kit_id=kit.id, db=session, llm_client=client)
+
+        session.refresh(kit)
+        session.refresh(claim)
+        assert kit.status == KitStatus.READY
+        assert claim.verdict in (ClaimVerdict.SUPPORTED, ClaimVerdict.PARTIAL)
+        assert claim.verifier_note is not None
+        assert run.pass_rate > 0.0
+    finally:
+        session.close()
+        Base.metadata.drop_all(engine)

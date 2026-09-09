@@ -381,6 +381,29 @@ async def test_pipeline_background_integration(db_session: Session) -> None:
                 completion_tokens=100,
                 latency_ms=200,
             )
+        # Verification handling
+        if "Verify each of the following claims" in prompt or "verifications" in prompt:
+            parsed_prompt = json.loads(
+                prompt.split("Claims to Verify:\n")[1].split("\n\nReturn ONLY")[0]
+            )
+            verifications = [
+                {
+                    "claim_id": c["claim_id"],
+                    "verdict": "supported",
+                    "verifier_note": "Directly confirmed.",
+                }
+                for c in parsed_prompt
+            ]
+            content = json.dumps({"verifications": verifications})
+            return LLMResponse[str](
+                content=content,
+                raw_text=content,
+                model_id="mock-gemini",
+                prompt_tokens=100,
+                completion_tokens=50,
+                latency_ms=150,
+            )
+
         # Otherwise asset generation
         for at in AssetType:
             if at.value in prompt:
@@ -416,12 +439,15 @@ async def test_pipeline_background_integration(db_session: Session) -> None:
         patch(
             "backend.app.generation.service.GeminiLLMClient", return_value=mock_client
         ),
+        patch(
+            "backend.app.verification.service.GeminiLLMClient", return_value=mock_client
+        ),
     ):
         await _run_background_pipeline(kit.id)
 
     with session_factory() as verify_db:
         updated_kit = verify_db.query(Kit).filter(Kit.id == kit.id).first()
         assert updated_kit is not None
-        assert updated_kit.status == KitStatus.GENERATING
+        assert updated_kit.status == KitStatus.READY
         assets = verify_db.query(Asset).filter(Asset.kit_id == kit.id).all()
         assert len(assets) == 5

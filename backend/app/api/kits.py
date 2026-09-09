@@ -12,6 +12,7 @@ from backend.app.db.session import get_db, get_session_maker
 from backend.app.extraction.service import process_kit_extraction
 from backend.app.generation.service import generate_kit_assets
 from backend.app.guardrails.daily_cap import check_daily_cap
+from backend.app.verification.service import verify_kit_claims
 
 router = APIRouter(prefix="/api/kits", tags=["kits"])
 
@@ -40,6 +41,9 @@ async def _run_background_pipeline(kit_id: uuid.UUID) -> None:
         kit = db.query(Kit).filter(Kit.id == kit_id).first()
         if kit and kit.status == KitStatus.EXTRACTING and kit.source_sentences:
             await generate_kit_assets(kit_id, db)
+            kit = db.query(Kit).filter(Kit.id == kit_id).first()
+            if kit and kit.status == KitStatus.GENERATING:
+                await verify_kit_claims(kit_id, db)
 
 
 def verify_access_code(
