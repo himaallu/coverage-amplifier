@@ -28,5 +28,4 @@ test: lint
 	cd frontend && npm test
 
 eval-live:
-	@echo "Running live evals requires GEMINI_API_KEY. Results must be appended to evals/RESULTS.md."
-	@echo "Live eval harness will be fully configured in FR-7."
+	$(PYTHON) -m backend.app.evals.runner --live

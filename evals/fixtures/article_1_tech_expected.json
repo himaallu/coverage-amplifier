@@ -1,0 +1,21 @@
+{
+  "article_id": "article_1_tech",
+  "outlet": "TechCrunch",
+  "title": "Pathos Communications Launches Autonomous Coverage Activation Platform",
+  "author": "Jane Doe",
+  "published_at": "2026-09-08",
+  "expected_stats": [
+    "90 seconds",
+    "45%",
+    "35",
+    "1,200",
+    "10,000",
+    "October 15, 2026"
+  ],
+  "expected_entities": [
+    "Pathos Communications",
+    "Scott Feltham",
+    "Jane Doe",
+    "London"
+  ]
+}

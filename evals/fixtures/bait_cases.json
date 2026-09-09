@@ -1,0 +1,37 @@
+[
+  {
+    "id": "bait_nonexistent_source_id",
+    "type": "nonexistent_source_id",
+    "description": "Claim citing a nonexistent source ID (S99)",
+    "claim_text": "Pathos Communications achieved 10x ROI across all global enterprise deployments.",
+    "cited_source_ids": ["S99"],
+    "expected_verdict": "unsupported",
+    "source_sentences": [
+      {"id": "S1", "text": "Pathos Communications PLC published its audited financial results for the fiscal year ending December 31, 2025, showing revenue growth of 62 percent to 14.8 million pounds."},
+      {"id": "S2", "text": "Operating profits rose to 3.2 million pounds compared with 1.1 million pounds in the previous year."}
+    ]
+  },
+  {
+    "id": "bait_altered_number",
+    "type": "altered_number",
+    "description": "Claim with an altered number (claims 99% revenue jump instead of 62 percent)",
+    "claim_text": "Pathos Communications achieved an unprecedented 99% revenue jump in fiscal year 2025.",
+    "cited_source_ids": ["S1"],
+    "expected_verdict": "unsupported",
+    "source_sentences": [
+      {"id": "S1", "text": "Pathos Communications PLC published its audited financial results for the fiscal year ending December 31, 2025, showing revenue growth of 62 percent to 14.8 million pounds."},
+      {"id": "S2", "text": "Operating profits rose to 3.2 million pounds compared with 1.1 million pounds in the previous year."}
+    ]
+  },
+  {
+    "id": "bait_uncited_claim",
+    "type": "uncited_claim",
+    "description": "Factual claim with no source sentences cited",
+    "claim_text": "The agency holds 80% market share in autonomous PR activation.",
+    "cited_source_ids": [],
+    "expected_verdict": "unsupported",
+    "source_sentences": [
+      {"id": "S1", "text": "Pathos Communications PLC published its audited financial results for the fiscal year ending December 31, 2025, showing revenue growth of 62 percent to 14.8 million pounds."}
+    ]
+  }
+]
