@@ -1,5 +1,6 @@
 import os
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
 
@@ -7,6 +8,18 @@ from sqlalchemy import engine_from_config, pool
 import backend.app.db.models  # noqa: F401
 from alembic import context
 from backend.app.db.base import Base
+
+# Load .env if present
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if ENV_PATH.exists():
+    for line in ENV_PATH.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            k = k.strip()
+            v = v.strip().strip("'\"")
+            if k and not os.getenv(k):
+                os.environ[k] = v
 
 config = context.config
 
@@ -17,12 +30,12 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    return os.getenv(
-        "DATABASE_URL",
-        config.get_main_option(
-            "sqlalchemy.url",
-            "postgresql+psycopg://postgres:postgres@localhost:5432/postgres",
-        ),
+    url = os.getenv("DATABASE_URL")
+    if url:
+        return url
+    return config.get_main_option(
+        "sqlalchemy.url",
+        "postgresql+psycopg://postgres:postgres@localhost:5432/postgres",
     )
 
 

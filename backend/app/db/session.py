@@ -1,5 +1,6 @@
 import os
 from collections.abc import Generator
+from pathlib import Path
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, sessionmaker
@@ -7,8 +8,25 @@ from sqlalchemy.orm import Session, sessionmaker
 DEFAULT_TIMEOUT_SECONDS = 2
 
 
+def _load_env_if_present() -> None:
+    env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                k = k.strip()
+                v = v.strip().strip("'\"")
+                if k and not os.getenv(k):
+                    os.environ[k] = v
+
+
 def get_database_url() -> str | None:
-    return os.getenv("DATABASE_URL")
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        _load_env_if_present()
+        url = os.getenv("DATABASE_URL")
+    return url
 
 
 def create_db_engine(url: str | None = None) -> sa.Engine:
