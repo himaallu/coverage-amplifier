@@ -25,6 +25,7 @@ test: lint
 		--cov=backend/app/guardrails \
 		--cov-report=term-missing \
 		--cov-fail-under=85
+	cd frontend && npm test
 
 eval-live:
 	@echo "Running live evals requires GEMINI_API_KEY. Results must be appended to evals/RESULTS.md."
