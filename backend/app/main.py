@@ -43,6 +43,8 @@ class HealthResponse(BaseModel):
 
 
 @app.get("/healthz", response_model=HealthResponse)
+@app.get("/health", response_model=HealthResponse)
+@app.get("/api/healthz", response_model=HealthResponse)
 def healthz() -> dict[str, Any]:
     db_ok = check_db_connection()
     return {"status": "ok", "db": "ok" if db_ok else "down"}
