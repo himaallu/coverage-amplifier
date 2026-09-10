@@ -34,10 +34,12 @@ def create_db_engine(url: str | None = None) -> sa.Engine:
     if not db_url:
         raise ValueError("DATABASE_URL is not set")
 
-    connect_args: dict[str, int | str] = {}
+    connect_args: dict[str, int | str | None] = {}
     if db_url.startswith("postgresql"):
         # Set a short connect_timeout for psycopg
         connect_args["connect_timeout"] = DEFAULT_TIMEOUT_SECONDS
+        # Disable prepared statements for Supabase PgBouncer transaction pooler
+        connect_args["prepare_threshold"] = None
         return sa.create_engine(
             db_url,
             pool_size=5,
