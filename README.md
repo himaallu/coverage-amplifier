@@ -3,6 +3,14 @@
 > **AI Coverage Activation for Pay-on-Results PR**  
 > Transform earned media coverage into verified, client-ready marketing kits in seconds. Every claim grounded, verified, and audited against source reporting.
 
+### 🌐 Live Production Deployments
+- **Live Web App (Vercel)**: [https://coverage-amplifier-opal.vercel.app](https://coverage-amplifier-opal.vercel.app)
+- **Live Backend API (Google Cloud Run)**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app)
+- **Live API Docs (Swagger UI)**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/docs](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/docs)
+- **Live Health Endpoint**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health)
+- **Demo Access Passcode**: `coverage-demo-2026`
+- **Sample Verified Kit**: [View Live Kit (Herman Melville — The Blacksmith)](https://coverage-amplifier-opal.vercel.app/kit/5a0d044f-e95e-49dc-b6ad-34cde0c11509)
+
 ---
 
 ## Table of Contents

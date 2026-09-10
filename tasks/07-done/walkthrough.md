@@ -2,6 +2,13 @@
 
 Implemented deployment artifacts per [docs/PRD.md §7](file:///Users/aditya/Desktop/coverage-amplifier/docs/PRD.md#L192-L230) and authored the comprehensive project [README.md](file:///Users/aditya/Desktop/coverage-amplifier/README.md), covering containerization, architecture, ADRs, eval results, measured cost telemetry, limitations, roadmap, and deployment instructions.
 
+### Live Production Deployments
+- **Live Frontend (Vercel)**: [https://coverage-amplifier-opal.vercel.app](https://coverage-amplifier-opal.vercel.app)
+- **Live Backend (Google Cloud Run)**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app)
+- **Live Health Endpoint**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health)
+- **Live Verified Sample Kit**: [https://coverage-amplifier-opal.vercel.app/kit/5a0d044f-e95e-49dc-b6ad-34cde0c11509](https://coverage-amplifier-opal.vercel.app/kit/5a0d044f-e95e-49dc-b6ad-34cde0c11509)
+- **Demo Access Passcode**: `coverage-demo-2026`
+
 ## What Was Accomplished
 
 1. **Task Brief Formalization**:
