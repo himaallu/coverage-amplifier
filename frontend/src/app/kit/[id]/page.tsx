@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   getKit,
+  deleteKit,
   updateAsset,
   exportKit,
   resumeKit,
@@ -26,6 +27,7 @@ export default function KitPage({ params }: { params: { id: string } }) {
   const [kit, setKit] = useState<KitDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [copiedAssetId, setCopiedAssetId] = useState<string | null>(null);
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
@@ -115,6 +117,26 @@ export default function KitPage({ params }: { params: { id: string } }) {
       alert(`Failed to resume kit: ${msg}`);
     } finally {
       setResuming(false);
+    }
+  };
+
+  const handleDeleteKit = async () => {
+    if (!kit) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this coverage kit? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteKit(kit.id);
+      window.location.href = "/library";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to delete kit: ${msg}`);
+      setDeleting(false);
     }
   };
 
@@ -237,6 +259,13 @@ export default function KitPage({ params }: { params: { id: string } }) {
             className="px-3 py-1.5 text-xs font-semibold rounded border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 shadow-sm transition"
           >
             Export HTML
+          </button>
+          <button
+            onClick={handleDeleteKit}
+            disabled={deleting}
+            className="px-3 py-1.5 text-xs font-semibold rounded border border-red-200 bg-white hover:bg-red-50 text-red-600 shadow-sm transition disabled:opacity-50"
+          >
+            {deleting ? "Deleting..." : "Delete Kit"}
           </button>
         </div>
       </div>

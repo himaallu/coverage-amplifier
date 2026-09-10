@@ -212,3 +212,30 @@ async def test_pipeline_extraction_failure_logs_to_db(db_session: Session) -> No
     calls = db_session.query(LLMCall).filter(LLMCall.kit_id == kit.id).all()
     assert len(calls) == 2  # Initial + 1 repair attempt
     assert "failed" in calls[0].status
+
+
+@pytest.mark.anyio
+async def test_extractor_fetch_error_routes_to_paste_pending(
+    db_session: Session,
+) -> None:
+    from unittest.mock import patch
+
+    from backend.app.extraction.fetcher import PayloadTooLargeError
+
+    kit = Kit(
+        source_url="https://example.com/oversized-page",
+        raw_text=None,
+        status=KitStatus.EXTRACTING,
+    )
+    db_session.add(kit)
+    db_session.commit()
+
+    with patch(
+        "backend.app.extraction.service.fetch_article_url",
+        side_effect=PayloadTooLargeError("Exceeded 2MB limit"),
+    ):
+        await process_kit_extraction(kit_id=kit.id, db=db_session)
+
+    db_session.refresh(kit)
+    assert kit.status == KitStatus.PASTE_PENDING
+

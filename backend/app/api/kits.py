@@ -20,7 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy.orm import Session
 
 from backend.app.db.enums import AssetType, ClaimVerdict, KitStatus
-from backend.app.db.models import Asset, Kit
+from backend.app.db.models import Asset, Claim, Kit, LLMCall, VerificationRun
 from backend.app.db.session import get_db, get_session_maker
 from backend.app.extraction.service import process_kit_extraction
 from backend.app.generation.service import generate_kit_assets
@@ -144,13 +144,19 @@ class ResumeResponse(BaseModel):
 async def _run_background_pipeline(kit_id: uuid.UUID) -> None:
     session_factory = get_session_maker()
     with session_factory() as db:
-        await process_kit_extraction(kit_id, db)
-        kit = db.query(Kit).filter(Kit.id == kit_id).first()
-        if kit and kit.status == KitStatus.EXTRACTING and kit.source_sentences:
-            await generate_kit_assets(kit_id, db)
+        try:
+            await process_kit_extraction(kit_id, db)
             kit = db.query(Kit).filter(Kit.id == kit_id).first()
-            if kit and kit.status == KitStatus.GENERATING:
-                await verify_kit_claims(kit_id, db)
+            if kit and kit.status == KitStatus.EXTRACTING and kit.source_sentences:
+                await generate_kit_assets(kit_id, db)
+                kit = db.query(Kit).filter(Kit.id == kit_id).first()
+                if kit and kit.status == KitStatus.GENERATING:
+                    await verify_kit_claims(kit_id, db)
+        except Exception:
+            kit = db.query(Kit).filter(Kit.id == kit_id).first()
+            if kit and kit.status not in (KitStatus.READY, KitStatus.PASTE_PENDING):
+                kit.status = KitStatus.FAILED
+                db.commit()
 
 
 async def _resume_background_pipeline(kit_id: uuid.UUID) -> None:
@@ -582,3 +588,40 @@ def resume_kit(
         kit_id=str(kit.id),
         status="resumed from last completed stage",
     )
+
+
+@router.delete(
+    "/{kit_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a coverage kit and cascade remove associated records",
+)
+def delete_kit(
+    kit_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> None:
+    kit = db.query(Kit).filter(Kit.id == kit_id).first()
+    if not kit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Coverage kit {kit_id} not found",
+        )
+
+    assets = db.query(Asset).filter(Asset.kit_id == kit_id).all()
+    asset_ids = [a.id for a in assets]
+    if asset_ids:
+        db.query(Claim).filter(Claim.asset_id.in_(asset_ids)).delete(
+            synchronize_session=False
+        )
+    db.query(Asset).filter(Asset.kit_id == kit_id).delete(
+        synchronize_session=False
+    )
+    db.query(VerificationRun).filter(VerificationRun.kit_id == kit_id).delete(
+        synchronize_session=False
+    )
+    db.query(LLMCall).filter(LLMCall.kit_id == kit_id).delete(
+        synchronize_session=False
+    )
+
+    db.delete(kit)
+    db.commit()
+

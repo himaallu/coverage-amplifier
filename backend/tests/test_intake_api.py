@@ -162,3 +162,56 @@ def test_daily_cap_fallback_on_invalid_env(
     monkeypatch.setenv("KIT_DAILY_CAP", "invalid-not-a-number")
     # Should fall back to DEFAULT_DAILY_CAP (50) and return True
     assert check_daily_cap(db_session) is True
+
+
+def test_delete_kit_endpoint_success(
+    client: TestClient, db_session: Session
+) -> None:
+    from backend.app.db.enums import AssetType, ClaimVerdict
+    from backend.app.db.models import Asset, Claim, Kit
+
+    kit = Kit(
+        title="To Be Deleted",
+        status=KitStatus.READY,
+    )
+    db_session.add(kit)
+    db_session.commit()
+    db_session.refresh(kit)
+
+    asset = Asset(
+        kit_id=kit.id,
+        type=AssetType.LINKEDIN_COMPANY,
+        text="Sample text",
+    )
+    db_session.add(asset)
+    db_session.commit()
+    db_session.refresh(asset)
+
+    claim = Claim(
+        asset_id=asset.id,
+        text_span="Sample span",
+        verdict=ClaimVerdict.SUPPORTED,
+    )
+    db_session.add(claim)
+    db_session.commit()
+
+    saved_kit_id = kit.id
+    saved_asset_id = asset.id
+
+    res = client.delete(f"/api/kits/{saved_kit_id}")
+    assert res.status_code == 204
+
+    # Verify kit and relations are deleted
+    assert db_session.query(Kit).filter(Kit.id == saved_kit_id).first() is None
+    assert db_session.query(Asset).filter(Asset.kit_id == saved_kit_id).first() is None
+    claim_match = (
+        db_session.query(Claim).filter(Claim.asset_id == saved_asset_id).first()
+    )
+    assert claim_match is None
+
+
+def test_delete_kit_endpoint_not_found(client: TestClient) -> None:
+    random_id = uuid.uuid4()
+    res = client.delete(f"/api/kits/{random_id}")
+    assert res.status_code == 404
+

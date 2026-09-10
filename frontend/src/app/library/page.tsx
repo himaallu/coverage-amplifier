@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { listKits, resumeKit, KitSummary } from "@/lib/api";
+import { listKits, resumeKit, deleteKit, KitSummary } from "@/lib/api";
 
 export default function LibraryPage() {
   const [kits, setKits] = useState<KitSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumingKitId, setResumingKitId] = useState<string | null>(null);
+  const [deletingKitId, setDeletingKitId] = useState<string | null>(null);
 
   const loadKits = async () => {
     try {
@@ -40,6 +41,28 @@ export default function LibraryPage() {
       alert(`Failed to resume kit: ${msg}`);
     } finally {
       setResumingKitId(null);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, kitId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this coverage kit? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+    setDeletingKitId(kitId);
+    try {
+      await deleteKit(kitId);
+      await loadKits();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to delete kit: ${msg}`);
+    } finally {
+      setDeletingKitId(null);
     }
   };
 
@@ -201,31 +224,47 @@ export default function LibraryPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right whitespace-nowrap">
-                        {kit.status === "failed" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          {kit.status === "failed" ? (
+                            <button
+                              onClick={(e) => handleResume(e, kit.id)}
+                              disabled={resumingKitId === kit.id}
+                              className="px-2.5 py-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded transition disabled:opacity-50"
+                            >
+                              {resumingKitId === kit.id ? "Resuming..." : "Resume"}
+                            </button>
+                          ) : kit.status === "paste_pending" ? (
+                            <Link
+                              href={`/kit/${kit.id}`}
+                              className="px-2.5 py-1 text-xs font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded transition"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Paste Body →
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/kit/${kit.id}`}
+                              className="text-xs font-semibold text-blue-600 hover:text-blue-800 group-hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              View Kit →
+                            </Link>
+                          )}
                           <button
-                            onClick={(e) => handleResume(e, kit.id)}
-                            disabled={resumingKitId === kit.id}
-                            className="px-2.5 py-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded transition disabled:opacity-50"
+                            onClick={(e) => handleDelete(e, kit.id)}
+                            disabled={deletingKitId === kit.id}
+                            title="Delete Kit"
+                            className="p-1 text-gray-400 hover:text-red-600 rounded hover:bg-red-50 transition"
                           >
-                            {resumingKitId === kit.id ? "Resuming..." : "Resume"}
+                            {deletingKitId === kit.id ? (
+                              <span className="text-[10px] text-red-500 font-mono">...</span>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
                           </button>
-                        ) : kit.status === "paste_pending" ? (
-                          <Link
-                            href={`/kit/${kit.id}`}
-                            className="px-2.5 py-1 text-xs font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded transition"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Paste Body →
-                          </Link>
-                        ) : (
-                          <Link
-                            href={`/kit/${kit.id}`}
-                            className="text-xs font-semibold text-blue-600 hover:text-blue-800 group-hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            View Kit →
-                          </Link>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   );

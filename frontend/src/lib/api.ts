@@ -135,6 +135,10 @@ async function request<T>(
     throw error;
   }
 
+  if (res.status === 204) {
+    return undefined as unknown as T;
+  }
+
   return res.json() as Promise<T>;
 }
 
@@ -157,6 +161,12 @@ export async function listKits(): Promise<KitSummary[]> {
 export async function getKit(kitId: string): Promise<KitDetail> {
   return request<KitDetail>(`/api/kits/${kitId}`, {
     method: "GET",
+  });
+}
+
+export async function deleteKit(kitId: string): Promise<void> {
+  return request<void>(`/api/kits/${kitId}`, {
+    method: "DELETE",
   });
 }
 

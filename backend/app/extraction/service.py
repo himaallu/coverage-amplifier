@@ -165,8 +165,13 @@ async def process_kit_extraction(
     is_html = False
 
     if not content and kit.source_url:
-        content = await fetch_article_url(kit.source_url)
-        is_html = True
+        try:
+            content = await fetch_article_url(kit.source_url)
+            is_html = True
+        except Exception:
+            kit.status = KitStatus.PASTE_PENDING
+            db.commit()
+            return
 
     # 2. Extract and truncate (detect thin content)
     try:
