@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, sessionmaker
 
-DEFAULT_TIMEOUT_SECONDS = 2
+DEFAULT_TIMEOUT_SECONDS = 10
 
 
 def _load_env_if_present() -> None:

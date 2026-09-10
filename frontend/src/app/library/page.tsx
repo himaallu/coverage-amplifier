@@ -124,9 +124,33 @@ export default function LibraryPage() {
                     statusBadge = "bg-green-50 text-green-700 border border-green-200";
                   } else if (kit.status === "failed") {
                     statusBadge = "bg-red-50 text-red-700 border border-red-200";
+                  } else if (kit.status === "paste_pending") {
+                    statusBadge = "bg-amber-50 text-amber-800 border border-amber-200";
                   } else {
                     statusBadge = "bg-blue-50 text-blue-700 border border-blue-200 animate-pulse";
                   }
+
+                  const displayTitle = kit.title
+                    ? kit.title
+                    : kit.status === "paste_pending"
+                    ? "Pending Full Article Paste"
+                    : kit.status === "extracting"
+                    ? "Extracting Story Metadata..."
+                    : kit.status === "generating"
+                    ? "Generating Derivative Assets..."
+                    : kit.status === "verifying"
+                    ? "Verifying Claims Against Source..."
+                    : kit.status === "failed"
+                    ? "Extraction Failed / Incomplete"
+                    : "Untitled Coverage Kit";
+
+                  const displayOutlet = kit.outlet
+                    ? kit.outlet
+                    : kit.status === "paste_pending"
+                    ? "Paywall / Snippet detected (<200 words)"
+                    : kit.status === "ready"
+                    ? "Editorial Coverage"
+                    : "Analyzing source...";
 
                   return (
                     <tr
@@ -136,11 +160,11 @@ export default function LibraryPage() {
                     >
                       <td className="py-4 px-6">
                         <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {kit.title || "Untitled Coverage Kit"}
+                          {displayTitle}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
                           <span className="font-medium text-gray-700">
-                            {kit.outlet || "Unknown Outlet"}
+                            {displayOutlet}
                           </span>
                           {kit.truncated && (
                             <span className="text-[10px] bg-amber-100 text-amber-800 px-1 rounded">
@@ -173,7 +197,7 @@ export default function LibraryPage() {
                         <span
                           className={`px-2 py-0.5 text-[11px] font-semibold rounded capitalize ${statusBadge}`}
                         >
-                          {kit.status}
+                          {kit.status === "paste_pending" ? "Paste Needed" : kit.status}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right whitespace-nowrap">
@@ -185,6 +209,14 @@ export default function LibraryPage() {
                           >
                             {resumingKitId === kit.id ? "Resuming..." : "Resume"}
                           </button>
+                        ) : kit.status === "paste_pending" ? (
+                          <Link
+                            href={`/kit/${kit.id}`}
+                            className="px-2.5 py-1 text-xs font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded transition"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Paste Body →
+                          </Link>
                         ) : (
                           <Link
                             href={`/kit/${kit.id}`}

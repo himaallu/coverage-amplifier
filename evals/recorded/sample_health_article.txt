@@ -1,0 +1,10 @@
+Reuters Health News — Cambridge, UK.
+Pathos Health today secured European CE mark regulatory certification for its clinical trial verification platform following an extensive 18-month multi-center evaluation cycle. The Cambridge-headquartered healthcare intelligence provider demonstrated 99.4% precision in detecting data discrepancies across 45,000 patient records during comprehensive validation trials conducted with University College London Hospitals NHS Foundation Trust.
+
+Chief Medical Officer Dr. Aris Thorne confirmed during a press briefing that the autonomous verification suite successfully reduces mandatory compliance review cycles from 14 business days to under four hours for pharmaceutical sponsors and clinical research organizations. The breakthrough technology utilizes specialized natural language processing models to audit observational trial registries against strict Good Clinical Practice guidelines.
+
+To support international commercialization, Pathos Health announced an 8.5 million euro Series A funding round led by Nordic Health Capital, with follow-on participation from Cambridge Enterprise and BioVentures UK. This milestone brings total capital raised by the company to 12.2 million euros since its inception in 2023.
+
+Commercial deployment of the platform is scheduled to launch on November 1, 2026 across 12 partner hospital networks located in Germany, France, and Switzerland. Furthermore, executive leadership confirmed that Pathos plans to submit for United States Food and Drug Administration (FDA) 510(k) clearance in early 2027 while expanding its clinical data science and machine learning research team in Oxford by 25 senior specialists.
+
+Independent biopharma regulatory auditors verified that automated protocol validation eliminates over 85% of transcription and reporting errors prior to formal submission to health authorities. Clinical trial investigators from University College London commended the platform for establishing immutable, transparent audit trails for every evidentiary claim.
