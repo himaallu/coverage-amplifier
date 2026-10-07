@@ -47,49 +47,35 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
             app.dependency_overrides.clear()
 
 
-def test_intake_requires_access_code(
+def test_intake_is_open_without_access_code(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "correct-code")
+    # Public portfolio demo: no access code gate, even if ACCESS_CODE is still set.
+    monkeypatch.setenv("ACCESS_CODE", "leftover-code")
 
     res = client.post("/api/kits", json={"url": "https://example.com/article"})
-    assert res.status_code == 401
-
-    res = client.post(
-        "/api/kits",
-        json={"url": "https://example.com/article"},
-        headers={"X-Access-Code": "wrong-code"},
-    )
-    assert res.status_code == 401
+    assert res.status_code == 202
 
 
 def test_intake_payload_validation(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "test-passcode")
-    headers = {"X-Access-Code": "test-passcode"}
-
     res = client.post(
         "/api/kits",
         json={"url": "https://example.com/article", "text": "Some text"},
-        headers=headers,
     )
     assert res.status_code == 422
 
-    res = client.post("/api/kits", json={}, headers=headers)
+    res = client.post("/api/kits", json={})
     assert res.status_code == 422
 
 
 def test_intake_creates_kit_and_returns_202(
     client: TestClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "secret-passcode")
-    headers = {"X-Access-Code": "secret-passcode"}
-
     res = client.post(
         "/api/kits",
         json={"url": "https://example.com/tech-article"},
-        headers=headers,
     )
 
     assert res.status_code == 202
@@ -105,14 +91,11 @@ def test_intake_creates_kit_and_returns_202(
 def test_intake_paste_mode_happy_path(
     client: TestClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "secret-passcode")
-    headers = {"X-Access-Code": "secret-passcode"}
     pasted_text = "This is a direct article paste with more than enough content. " * 15
 
     res = client.post(
         "/api/kits",
         json={"text": pasted_text},
-        headers=headers,
     )
 
     assert res.status_code == 202
@@ -126,9 +109,7 @@ def test_intake_paste_mode_happy_path(
 def test_intake_daily_cap_exceeded_429(
     client: TestClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "secret-passcode")
     monkeypatch.setenv("KIT_DAILY_CAP", "2")
-    headers = {"X-Access-Code": "secret-passcode"}
 
     now = datetime.now(timezone.utc)
     k1 = Kit(
@@ -147,7 +128,6 @@ def test_intake_daily_cap_exceeded_429(
     res = client.post(
         "/api/kits",
         json={"url": "https://ex.com/3"},
-        headers=headers,
     )
     assert res.status_code == 429
     detail = res.json()["detail"].lower()
@@ -164,9 +144,7 @@ def test_daily_cap_fallback_on_invalid_env(
     assert check_daily_cap(db_session) is True
 
 
-def test_delete_kit_endpoint_success(
-    client: TestClient, db_session: Session
-) -> None:
+def test_delete_kit_endpoint_success(client: TestClient, db_session: Session) -> None:
     from backend.app.db.enums import AssetType, ClaimVerdict
     from backend.app.db.models import Asset, Claim, Kit
 
@@ -214,4 +192,3 @@ def test_delete_kit_endpoint_not_found(client: TestClient) -> None:
     random_id = uuid.uuid4()
     res = client.delete(f"/api/kits/{random_id}")
     assert res.status_code == 404
-
