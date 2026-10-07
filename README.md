@@ -34,7 +34,7 @@ For pay-on-results PR agencies, media placement is only the halfway point. Clien
 Historically, post-placement activation required manual copywriting for every client—a process that is high-volume, formulaic, and prone to hallucinations or misattributed quotes (a client-trust disaster).
 
 **Coverage Amplifier** automates this workflow:
-1. **Paste URL or Text**: Ingests articles via HTTP fetch + Trafilatura, with an instant fallback to manual paste.
+1. **Paste Article Text**: The web app takes pasted article text (the API still supports URL fetch via Trafilatura, but the UI no longer exposes it).
 2. **Extract Atomic Facts**: Derives 8–20 verbatim source sentences ($S_1, S_2, \dots, S_n$) with normalized substring integrity verification against the raw source text.
 3. **Generate 5 Core Assets**:
    - LinkedIn Post (Company Voice)
@@ -57,7 +57,7 @@ Coverage Amplifier follows a decoupled, cloud-native architecture deployed acros
 flowchart TD
     subgraph Client ["Client Layer (Vercel)"]
         UI["Next.js 14 Web App\n(TypeScript + Tailwind)"]
-        IntakeUI["Intake Screen\n(URL & Paste Modes)"]
+        IntakeUI["Intake Screen\n(Paste Article Text)"]
         KitUI["Kit View Screen\n(Editable Assets + Verification Panel)"]
         LibraryUI["Library Screen\n(Historical Kits & Pass Rates)"]
         UI --> IntakeUI
@@ -217,7 +217,7 @@ Model: `gemini-3.5-flash-lite` (Input: $0.075 / 1M tokens; Output: $0.30 / 1M to
 
 ## Limitations
 
-1. **JavaScript-Heavy & Paywalled Sites**: Sites rendered via client-side SPAs or hard paywalls may yield thin text (< 200 words) via Trafilatura. The UI detects this gracefully and transitions to Paste Mode with the URL preserved.
+1. **JavaScript-Heavy & Paywalled Sites**: Sites rendered via client-side SPAs or hard paywalls may yield thin text (< 200 words) via Trafilatura. The web app now sidesteps this by accepting pasted article text only.
 2. **Social Posting APIs Deferred**: Due to platform developer account verification timelines (Meta App Review, LinkedIn Developer Program), automated publishing is not included in v1.
 3. **Open Demo, Capped Spend**: The demo is open to anyone (no passcode or accounts); LLM spend is bounded by a global daily kit cap (`KIT_DAILY_CAP`).
 4. **Single-Container In-Process Background Tasks**: Background execution runs inside the FastAPI process. Container restarts during active kit processing mark the kit as `stale/failed` after 5 minutes, recoverable via `/resume`.
