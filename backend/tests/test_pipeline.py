@@ -238,4 +238,3 @@ async def test_extractor_fetch_error_routes_to_paste_pending(
 
     db_session.refresh(kit)
     assert kit.status == KitStatus.PASTE_PENDING
-
