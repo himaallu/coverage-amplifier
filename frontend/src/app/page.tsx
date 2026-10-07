@@ -6,8 +6,6 @@ import Link from "next/link";
 import {
   createKit,
   getKit,
-  getStoredAccessCode,
-  setStoredAccessCode,
   KitDetail,
   KitStatus,
 } from "@/lib/api";
@@ -19,7 +17,6 @@ export default function IntakePage() {
   const [mode, setMode] = useState<"url" | "paste">("url");
   const [urlInput, setUrlInput] = useState("");
   const [textInput, setTextInput] = useState("");
-  const [accessCode, setAccessCode] = useState("");
 
   // Pipeline execution state
   const [submitting, setSubmitting] = useState(false);
@@ -27,20 +24,6 @@ export default function IntakePage() {
   const [kitStatus, setKitStatus] = useState<KitStatus | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [thinContentNotice, setThinContentNotice] = useState<string | null>(null);
-
-  // Load stored access code on mount
-  useEffect(() => {
-    const saved = getStoredAccessCode();
-    if (saved) {
-      setAccessCode(saved);
-    }
-  }, []);
-
-  const handleAccessCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const code = e.target.value;
-    setAccessCode(code);
-    setStoredAccessCode(code);
-  };
 
   const wordCount = textInput.trim()
     ? textInput.trim().split(/\s+/).length
@@ -174,29 +157,6 @@ export default function IntakePage() {
           client-facing marketing assets with every claim grounded in source
           quotes.
         </p>
-      </div>
-
-      {/* Access Code Gate Bar */}
-      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <label
-            htmlFor="accessCodeInput"
-            className="block text-xs font-semibold text-gray-700 uppercase tracking-wide"
-          >
-            Demo Access Code
-          </label>
-          <p className="text-xs text-gray-500">
-            Passcode gates LLM endpoints against unauthorized abuse.
-          </p>
-        </div>
-        <input
-          id="accessCodeInput"
-          type="password"
-          value={accessCode}
-          onChange={handleAccessCodeChange}
-          placeholder="Enter access code"
-          className="w-full sm:w-56 px-3 py-1.5 text-sm border border-gray-300 rounded bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
       </div>
 
       {/* Thin content redirect notice */}

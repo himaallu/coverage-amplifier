@@ -240,9 +240,6 @@ def test_export_clean_copy_purity(client: TestClient, db_session: Session) -> No
 def test_resume_failed_kit(
     client: TestClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("ACCESS_CODE", "test-passcode")
-    headers = {"X-Access-Code": "test-passcode"}
-
     # Create a failed kit with source sentences completed but generation missing
     kit = Kit(
         source_url="https://example.com/stale-story",
@@ -257,7 +254,7 @@ def test_resume_failed_kit(
     with patch(
         "backend.app.api.kits._resume_background_pipeline", new_callable=AsyncMock
     ) as mock_resume:
-        res = client.post(f"/api/kits/{kit.id}/resume", headers=headers)
+        res = client.post(f"/api/kits/{kit.id}/resume")
         assert res.status_code == 202
         data = res.json()
         assert data["kit_id"] == str(kit.id)
@@ -273,9 +270,6 @@ async def test_full_e2e_flow_mocked(
     from backend.app.extraction.service import process_kit_extraction
     from backend.app.generation.service import generate_kit_assets
     from backend.app.verification.service import verify_kit_claims
-
-    monkeypatch.setenv("ACCESS_CODE", "demo-pass")
-    headers = {"X-Access-Code": "demo-pass"}
 
     article_text = (
         "Pathos Communications announces the launch of Coverage Amplifier. "
@@ -325,7 +319,6 @@ async def test_full_e2e_flow_mocked(
         res = client.post(
             "/api/kits",
             json={"text": article_text},
-            headers=headers,
         )
         assert res.status_code == 202
         kit_id = uuid.UUID(res.json()["kit_id"])

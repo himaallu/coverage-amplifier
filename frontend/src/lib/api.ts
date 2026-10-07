@@ -74,22 +74,6 @@ export interface ExportResult {
   title?: string | null;
 }
 
-const ACCESS_CODE_STORAGE_KEY = "coverage_amplifier_access_code";
-
-export function getStoredAccessCode(): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(ACCESS_CODE_STORAGE_KEY) || "";
-}
-
-export function setStoredAccessCode(code: string): void {
-  if (typeof window === "undefined") return;
-  if (!code) {
-    localStorage.removeItem(ACCESS_CODE_STORAGE_KEY);
-  } else {
-    localStorage.setItem(ACCESS_CODE_STORAGE_KEY, code.trim());
-  }
-}
-
 function getBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
@@ -102,12 +86,8 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${getBaseUrl()}${path}`;
-  const accessCode = getStoredAccessCode();
 
   const headers = new Headers(options.headers || {});
-  if (accessCode && !headers.has("X-Access-Code")) {
-    headers.set("X-Access-Code", accessCode);
-  }
   if (!headers.has("Content-Type") && options.body) {
     headers.set("Content-Type", "application/json");
   }

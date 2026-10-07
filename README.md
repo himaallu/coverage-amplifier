@@ -8,7 +8,6 @@
 - **Live Backend API (Google Cloud Run)**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app)
 - **Live API Docs (Swagger UI)**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/docs](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/docs)
 - **Live Health Endpoint**: [https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health](https://coverage-amplifier-api-3dtx44yxlq-uc.a.run.app/health)
-- **Demo Access Passcode**: `coverage-demo-2026`
 - **Sample Verified Kit**: [View Live Kit (Herman Melville — The Blacksmith)](https://coverage-amplifier-opal.vercel.app/kit/5a0d044f-e95e-49dc-b6ad-34cde0c11509)
 
 ---
@@ -68,7 +67,7 @@ flowchart TD
 
     subgraph Backend ["Backend API Layer (Google Cloud Run)"]
         API["FastAPI App\n(Uvicorn, Port 8080)"]
-        AuthGate["Access Gate\n(X-Access-Code + Rate Limiter)"]
+        AuthGate["Abuse Guard\n(Daily Kit Cap)"]
         Watchdog["Staleness Watchdog\n(5-min auto-fail & resume)"]
         Health["/healthz\n(DB Connectivity Probe)"]
         
@@ -220,7 +219,7 @@ Model: `gemini-3.5-flash-lite` (Input: $0.075 / 1M tokens; Output: $0.30 / 1M to
 
 1. **JavaScript-Heavy & Paywalled Sites**: Sites rendered via client-side SPAs or hard paywalls may yield thin text (< 200 words) via Trafilatura. The UI detects this gracefully and transitions to Paste Mode with the URL preserved.
 2. **Social Posting APIs Deferred**: Due to platform developer account verification timelines (Meta App Review, LinkedIn Developer Program), automated publishing is not included in v1.
-3. **Single-Operator Auth Gate**: Abuse protection uses a shared `ACCESS_CODE` (`X-Access-Code` header) with per-IP rate limiting and daily kit caps, rather than multi-tenant user accounts.
+3. **Open Demo, Capped Spend**: The demo is open to anyone (no passcode or accounts); LLM spend is bounded by a global daily kit cap (`KIT_DAILY_CAP`).
 4. **Single-Container In-Process Background Tasks**: Background execution runs inside the FastAPI process. Container restarts during active kit processing mark the kit as `stale/failed` after 5 minutes, recoverable via `/resume`.
 
 ---
@@ -261,7 +260,6 @@ cp .env.example .env
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string (Supabase transaction pooler) | `postgresql+psycopg://user:pass@host:6543/postgres?sslmode=require` |
 | `GEMINI_API_KEY` | Google Gemini API key | `AIzaSy...` |
-| `ACCESS_CODE` | Passcode for demo access gate | `coverage-demo-2026` |
 | `KIT_DAILY_CAP` | Global daily kit creation limit | `50` |
 | `MAX_PIPELINE_CHARS`| Input character cutoff | `24000` (~6k tokens) |
 | `CORS_ORIGIN` | Allowed CORS origins (comma-separated) | `http://localhost:3000,https://*.vercel.app` |
@@ -331,7 +329,6 @@ gcloud run deploy coverage-amplifier-api \
   --allow-unauthenticated \
   --set-env-vars "DATABASE_URL=postgresql+psycopg://postgres.[REF]:[PASS]@aws-0-[REGION].pooler.supabase.com:6543/postgres?sslmode=require" \
   --set-env-vars "GEMINI_API_KEY=your-gemini-api-key" \
-  --set-env-vars "ACCESS_CODE=your-demo-access-code" \
   --set-env-vars "KIT_DAILY_CAP=50" \
   --set-env-vars "ALLOWED_ORIGINS=https://coverage-amplifier.vercel.app,http://localhost:3000"
 ```

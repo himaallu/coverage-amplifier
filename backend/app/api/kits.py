@@ -1,15 +1,13 @@
 import html as html_lib
-import os
 import re
 import uuid
 from datetime import date, datetime
-from typing import Annotated, Any
+from typing import Any
 
 from fastapi import (
     APIRouter,
     BackgroundTasks,
     Depends,
-    Header,
     HTTPException,
     Query,
     Response,
@@ -196,18 +194,6 @@ async def _resume_background_pipeline(kit_id: uuid.UUID) -> None:
             await verify_kit_claims(kit_id, db)
 
 
-def verify_access_code(
-    x_access_code: Annotated[str | None, Header(alias="X-Access-Code")] = None,
-) -> None:
-    expected_code = os.getenv("ACCESS_CODE")
-    if expected_code:
-        if not x_access_code or x_access_code.strip() != expected_code.strip():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or missing access code",
-            )
-
-
 # --- Helper: Clean Export Generator ---
 
 ASSET_LABELS: dict[AssetType, str] = {
@@ -342,7 +328,6 @@ def create_kit(
     payload: IntakeRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    _auth: None = Depends(verify_access_code),
 ) -> IntakeResponse:
     if not check_daily_cap(db):
         raise HTTPException(
@@ -574,7 +559,6 @@ def resume_kit(
     kit_id: uuid.UUID,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    _auth: None = Depends(verify_access_code),
 ) -> ResumeResponse:
     kit = db.query(Kit).filter(Kit.id == kit_id).first()
     if not kit:
@@ -612,16 +596,11 @@ def delete_kit(
         db.query(Claim).filter(Claim.asset_id.in_(asset_ids)).delete(
             synchronize_session=False
         )
-    db.query(Asset).filter(Asset.kit_id == kit_id).delete(
-        synchronize_session=False
-    )
+    db.query(Asset).filter(Asset.kit_id == kit_id).delete(synchronize_session=False)
     db.query(VerificationRun).filter(VerificationRun.kit_id == kit_id).delete(
         synchronize_session=False
     )
-    db.query(LLMCall).filter(LLMCall.kit_id == kit_id).delete(
-        synchronize_session=False
-    )
+    db.query(LLMCall).filter(LLMCall.kit_id == kit_id).delete(synchronize_session=False)
 
     db.delete(kit)
     db.commit()
-

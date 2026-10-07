@@ -70,7 +70,7 @@ The PR tooling market is saturated with coverage *reporting* — CoverageBook ($
 
 - ❌ Direct posting to any social platform (LinkedIn/Meta publishing requires app reviews, partner programs, and account setups that cannot happen in one day — named as v1.1 with the constraint stated)
 - ❌ Image generation or video rendering (Instagram assets ship caption + visual *direction*; rendering brand-safe visuals is its own problem, deliberately deferred)
-- ❌ Authentication / multi-user accounts (single-operator tool; v1.1). A lightweight **demo access code gate is in v1** — that is abuse/wallet protection, not authentication.
+- ❌ Authentication / multi-user accounts (single-operator tool; v1.1). The demo access code gate was removed (approved change) so the public portfolio demo is usable without a passcode; wallet protection relies on the global daily kit cap.
 - ❌ Brand voice profiles, A/B variants, analytics (v1.1/v1.2)
 - ❌ Batch/campaign mode and durable queue infrastructure (in-process background tasks in v1 with a staleness watchdog; Cloud Tasks upgrade path named in README)
 - ❌ Headless-browser extraction (trafilatura + manual paste in v1; Playwright upgrade named in README)
@@ -231,7 +231,7 @@ URL/text → fetch+trafilatura → 24k-char cap → [extraction LLM, temp 0]
 ## 8. AI Integration Design
 
 - **Prompts:** each stage has a versioned prompt file (`prompts/extraction_v1.txt`, etc.). Extraction and verification: temperature 0, verbatim-copy rules explicit. Generation: temperature 0.4 — marketing voice, but claims still trace.
-- **Guardrails (wallet & abuse):** the endpoint is gated by a shared demo passcode — the user enters it, the frontend sends it as `X-Access-Code`, and the backend validates against the `ACCESS_CODE` env var (it is never compiled into the frontend bundle) — an open LLM endpoint on the public internet is a denial-of-wallet risk, and per-IP limiting alone does not stop rotating IPs; per-IP rate limit (5 kits/min) retained; a **global daily kit cap** (`KIT_DAILY_CAP`, default 50) as the hard circuit breaker that survives any rate-limit evasion; 2MB fetch cap; 24k-character pipeline cap (FR-1.3); per-kit token budget logged. Schema validation and the single repair retry apply to every LLM output.
+- **Guardrails (wallet & abuse):** the endpoint is open (no access code; the demo passcode gate was removed as an approved change for the public portfolio demo); per-IP rate limit (5 kits/min) retained; a **global daily kit cap** (`KIT_DAILY_CAP`, default 50) as the hard circuit breaker that survives any rate-limit evasion; 2MB fetch cap; 24k-character pipeline cap (FR-1.3); per-kit token budget logged. Schema validation and the single repair retry apply to every LLM output.
 - **Grounding technique:** mirrors production RAG practice — claim-level grounding, mandatory citation, sentence-level faithfulness scoring, abstention over guessing ([Tetrate](https://tetrate.io/learn/ai/llm-hallucination-prevention), [Maxim](https://www.getmaxim.ai/articles/llm-hallucination-detection-and-mitigation-best-techniques/), [MemX](https://memx.app/blog/reduce-llm-hallucinations-grounding-citations/)).
 - **Cost telemetry:** every call logs tokens/latency to `llm_calls`; README reports measured cost per kit — the "monitor AI cost per unit" practice.
 
