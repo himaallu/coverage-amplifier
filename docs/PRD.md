@@ -81,7 +81,7 @@ The PR tooling market is saturated with coverage *reporting* — CoverageBook ($
 
 ### FR-1 Intake
 
-- **FR-1.1** Accepts a URL or pasted text. URL path fetches with httpx (10s timeout, 2MB cap) and extracts readable text with trafilatura.
+- **FR-1.1** Accepts a URL or pasted text. *(Approved change: the web UI is paste-only; URL intake remains in the API but is not exposed in the UI.)* URL path fetches with httpx (10s timeout, 2MB cap) and extracts readable text with trafilatura.
 - **FR-1.2** If fetch or extraction yields < 200 words, the UI routes to paste mode with a clear message. No error dead-ends.
 - **FR-1.3 Token-budget guard:** the text entering the pipeline is hard-capped at **24,000 characters (~6k tokens)**, configurable via `MAX_PIPELINE_CHARS`. Extraction receives head-truncated text (news articles front-load their key facts — the inverted pyramid works in our favor); the kit records `original_char_count`, `processed_char_count`, and `truncated`, and the UI notes truncation. This is the explicit cap between the 2MB fetch limit and the extraction LLM — without it, a large page becomes a context-window or wallet incident.
 - **Acceptance (GWT):**

@@ -13,9 +13,6 @@ import {
 export default function IntakePage() {
   const router = useRouter();
 
-  // Mode: 'url' or 'paste'
-  const [mode, setMode] = useState<"url" | "paste">("url");
-  const [urlInput, setUrlInput] = useState("");
   const [textInput, setTextInput] = useState("");
 
   // Pipeline execution state
@@ -23,7 +20,6 @@ export default function IntakePage() {
   const [activeKitId, setActiveKitId] = useState<string | null>(null);
   const [kitStatus, setKitStatus] = useState<KitStatus | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [thinContentNotice, setThinContentNotice] = useState<string | null>(null);
 
   const wordCount = textInput.trim()
     ? textInput.trim().split(/\s+/).length
@@ -33,30 +29,17 @@ export default function IntakePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
-    setThinContentNotice(null);
 
-    if (mode === "url" && !urlInput.trim()) {
-      setErrorMsg("Please enter a valid article URL.");
+    if (charCount < 500 && wordCount < 100) {
+      setErrorMsg("Please paste full article text (minimum 500 characters).");
       return;
-    }
-
-    if (mode === "paste") {
-      if (charCount < 500 && wordCount < 100) {
-        setErrorMsg("Please paste full article text (minimum 500 characters).");
-        return;
-      }
     }
 
     setSubmitting(true);
     setKitStatus("extracting");
 
     try {
-      const payload =
-        mode === "url"
-          ? { url: urlInput.trim() }
-          : { text: textInput.trim() };
-
-      const res = await createKit(payload);
+      const res = await createKit({ text: textInput.trim() });
       setActiveKitId(res.kit_id);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to create kit";
@@ -83,14 +66,7 @@ export default function IntakePage() {
           setSubmitting(false);
           // Redirect to kit page
           router.push(`/kit/${kit.id}`);
-        } else if (kit.status === "paste_pending") {
-          clearInterval(interval);
-          setSubmitting(false);
-          setMode("paste");
-          setThinContentNotice(
-            "This URL could not be automatically extracted (paywall or dynamic JS). Please paste the article text directly below."
-          );
-        } else if (kit.status === "failed") {
+        } else if (kit.status === "failed" || kit.status === "paste_pending") {
           clearInterval(interval);
           setSubmitting(false);
           setErrorMsg(
@@ -153,22 +129,11 @@ export default function IntakePage() {
           Coverage Activation, Not Reporting
         </h1>
         <p className="mt-3 text-base text-gray-600 max-w-xl mx-auto">
-          Paste a published article URL or article text. Get 5 ready-to-use,
+          Paste the text of a published article. Get 5 ready-to-use,
           client-facing marketing assets with every claim grounded in source
           quotes.
         </p>
       </div>
-
-      {/* Thin content redirect notice */}
-      {thinContentNotice && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-sm flex items-start gap-3">
-          <span className="text-lg">⚠️</span>
-          <div>
-            <p className="font-semibold mb-1">Direct Paste Mode Activated</p>
-            <p>{thinContentNotice}</p>
-          </div>
-        </div>
-      )}
 
       {/* Error notification */}
       {errorMsg && (
@@ -186,83 +151,33 @@ export default function IntakePage() {
       {/* Main Intake Form Card */}
       {!submitting && !activeKitId ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          {/* Tabs */}
-          <div className="flex border-b border-gray-200 bg-gray-50/70">
-            <button
-              type="button"
-              onClick={() => setMode("url")}
-              className={`flex-1 py-3 text-sm font-semibold text-center border-b-2 transition ${
-                mode === "url"
-                  ? "border-blue-600 text-blue-700 bg-white"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Article URL
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("paste")}
-              className={`flex-1 py-3 text-sm font-semibold text-center border-b-2 transition ${
-                mode === "paste"
-                  ? "border-blue-600 text-blue-700 bg-white"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Paste Article Text
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit} className="p-6">
-            {mode === "url" ? (
-              <div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
                 <label
-                  htmlFor="urlInput"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  htmlFor="textInput"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  Published Coverage URL
+                  Article Text Body
                 </label>
-                <input
-                  id="urlInput"
-                  type="url"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  placeholder="https://techcrunch.com/2026/03/your-story"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  Fetches article text with trafilatura. Paywalled or JS-rendered
-                  pages automatically route to paste mode with zero stack traces.
-                </p>
+                <span className="text-xs text-gray-400">
+                  {charCount} characters ({wordCount} words)
+                </span>
               </div>
-            ) : (
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label
-                    htmlFor="textInput"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Article Text Body
-                  </label>
-                  <span className="text-xs text-gray-400">
-                    {charCount} characters ({wordCount} words)
-                  </span>
-                </div>
-                <textarea
-                  id="textInput"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Paste the full article headline and body text here..."
-                  rows={8}
-                  className="w-full p-4 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-sans"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Text entering the pipeline is hard-capped at 24,000 characters
-                  (~6k tokens) to prevent context and wallet incidents.
-                </p>
-              </div>
-            )}
+              <textarea
+                id="textInput"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder="Paste the full article headline and body text here..."
+                rows={8}
+                className="w-full p-4 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-sans"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Text entering the pipeline is hard-capped at 24,000 characters
+                (~6k tokens) to prevent context and wallet incidents.
+              </p>
+            </div>
 
             <div className="mt-6 flex items-center justify-between">
               <Link
